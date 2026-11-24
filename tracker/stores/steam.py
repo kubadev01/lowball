@@ -5,6 +5,10 @@ from tracker.models import PriceInfo
 APPDETAILS_URL = "https://store.steampowered.com/api/appdetails"
 
 
+class GameNotFoundError(Exception):
+    """Steam has no game with the given app ID."""
+
+
 def fetch_price(app_id: str) -> PriceInfo | None:
     response = httpx.get(
         APPDETAILS_URL,
@@ -16,7 +20,7 @@ def fetch_price(app_id: str) -> PriceInfo | None:
 
     game = response.json()[app_id]
     if not game["success"]:
-        return None
+        raise GameNotFoundError(app_id)
 
     game_data = game["data"]
     if not game_data:
@@ -37,3 +41,5 @@ if __name__ == "__main__":
             print(app_id, fetch_price(app_id))
         except httpx.HTTPError as error:
             print(f"{app_id}: network error ({error})")
+        except GameNotFoundError:
+            print(f"{app_id}: game not found")

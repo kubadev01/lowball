@@ -50,7 +50,7 @@ def test_returns_none_for_free_game(monkeypatch):
     assert result is None
 
 
-def test_returns_none_for_unknown_game(monkeypatch):
+def test_raises_for_unknown_game(monkeypatch):
     body = {
         "123": {
             "success": False,
@@ -58,9 +58,8 @@ def test_returns_none_for_unknown_game(monkeypatch):
     }
     monkeypatch.setattr(steam.httpx, "get", fake_get(200, body))
 
-    result = steam.fetch_price("123")
-
-    assert result is None
+    with pytest.raises(steam.GameNotFoundError):
+        steam.fetch_price("123")
 
 
 def test_raises_on_server_error(monkeypatch):
