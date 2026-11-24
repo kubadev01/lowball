@@ -33,4 +33,7 @@ def fetch_price(app_id: str) -> PriceInfo | None:
 
 if __name__ == "__main__":
     for app_id in ["1091500", "570", "1"]:
-        print(app_id, fetch_price(app_id))
+        try:
+            print(app_id, fetch_price(app_id))
+        except httpx.HTTPError as error:
+            print(f"{app_id}: network error ({error})")
