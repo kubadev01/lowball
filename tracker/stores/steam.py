@@ -1,4 +1,5 @@
 import httpx
+import os
 
 from tracker.models import PriceInfo
 
