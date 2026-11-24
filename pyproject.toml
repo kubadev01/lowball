@@ -15,6 +15,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "pytest>=8",
+    "ruff>=0.8"
 ]
 
 [tool.pytest.ini_options]
@@ -22,3 +23,9 @@ testpaths = ["tests"]
 
 [tool.setuptools.packages.find]
 include = ["tracker*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
