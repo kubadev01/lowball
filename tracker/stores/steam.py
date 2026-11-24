@@ -1,9 +1,11 @@
 import httpx
 
+from tracker.models import PriceInfo
+
 APPDETAILS_URL = "https://store.steampowered.com/api/appdetails"
 
 
-def fetch_price(app_id: str) -> int | None:
+def fetch_price(app_id: str) -> PriceInfo | None:
     response = httpx.get(
         APPDETAILS_URL,
         params={"appids": app_id, "cc": "pl", "filters": "price_overview"},
@@ -20,7 +22,13 @@ def fetch_price(app_id: str) -> int | None:
     if not game_data:
         return None
 
-    return game_data["price_overview"]["final"]
+    overview = game_data["price_overview"]
+    return PriceInfo(
+        final=overview["final"],
+        initial=overview["initial"],
+        discount_percent=overview["discount_percent"],
+        currency=overview["currency"],
+    )
 
 
 if __name__ == "__main__":
