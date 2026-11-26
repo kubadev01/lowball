@@ -1,26 +1,41 @@
 import sqlite3
 from collections.abc import Callable
+from dataclasses import dataclass
 from datetime import datetime
+
+import httpx
 
 from tracker import db
 from tracker.models import PriceInfo
+from tracker.stores.steam import GameNotFoundError
 
 FetchPrice = Callable[[str], PriceInfo | None]
 
 
+@dataclass(frozen=True)
+class CheckResult:
+    recorded: int
+    failed: list[str]
+
+
 def check_prices(
     conn: sqlite3.Connection, fetch: FetchPrice, checked_at: datetime
-) -> int:
+) -> CheckResult:
     """Fetch the current price of every tracked game and store it.
 
-    Returns the number of prices recorded.
+    Returns how many prices were recorded and which app IDs failed.
     """
     recorded = 0
+    failed = []
     for app_id, _ in db.list_games(conn):
-        info = fetch(app_id)
+        try:
+            info = fetch(app_id)
+        except (GameNotFoundError, httpx.HTTPError):
+            failed.append(app_id)
+            continue
         if info is None:
             continue
         db.record_price(conn, app_id, info, checked_at)
         recorded += 1
 
-    return recorded
+    return CheckResult(recorded=recorded, failed=failed)
