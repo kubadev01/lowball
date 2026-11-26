@@ -7,7 +7,7 @@ import httpx
 
 from tracker import db
 from tracker.models import PriceInfo
-from tracker.stores.steam import GameNotFoundError
+from tracker.stores.base import ProductNotFoundError
 
 FetchPrice = Callable[[str], PriceInfo | None]
 
@@ -30,7 +30,7 @@ def check_prices(
     for app_id, _ in db.list_games(conn):
         try:
             info = fetch(app_id)
-        except (GameNotFoundError, httpx.HTTPError):
+        except (ProductNotFoundError, httpx.HTTPError):
             failed.append(app_id)
             continue
         if info is None:

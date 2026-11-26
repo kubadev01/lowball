@@ -3,7 +3,7 @@ import pytest
 
 from tracker.models import PriceInfo
 from tracker.stores import steam
-from tracker.stores.base import Store
+from tracker.stores.base import ProductNotFoundError, Store
 
 
 def fake_get(status_code, json_body):
@@ -77,3 +77,15 @@ def test_raises_on_server_error(monkeypatch):
 def test_steam_store_is_a_store():
     store = steam.SteamStore()
     assert isinstance(store, Store)
+
+
+def test_unknown_game_is_product_not_found(monkeypatch):
+    body = {
+        "123": {
+            "success": False,
+        }
+    }
+    store = steam.SteamStore()
+    monkeypatch.setattr(steam.httpx, "get", fake_get(200, body))
+    with pytest.raises(ProductNotFoundError):
+        store.fetch_price("123")
