@@ -4,7 +4,7 @@ import httpx
 
 from tracker import checker, db
 from tracker.models import PriceInfo
-from tracker.stores.steam import GameNotFoundError
+from tracker.stores.base import ProductNotFoundError
 
 prices = {
     "001": PriceInfo(final=11999, initial=11999, discount_percent=0, currency="USD"),
@@ -15,7 +15,7 @@ prices = {
 
 def fake_fetch(app_id: str) -> PriceInfo | None:
     if app_id == "404":
-        raise GameNotFoundError(app_id)
+        raise ProductNotFoundError(app_id)
     elif app_id == "500":
         raise httpx.ConnectError("boom")
     return prices[app_id]

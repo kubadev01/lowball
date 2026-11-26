@@ -1,12 +1,12 @@
 import httpx
 
 from tracker.models import PriceInfo
-from tracker.stores.base import Store
+from tracker.stores.base import ProductNotFoundError, Store
 
 APPDETAILS_URL = "https://store.steampowered.com/api/appdetails"
 
 
-class GameNotFoundError(Exception):
+class GameNotFoundError(ProductNotFoundError):
     """Steam has no game with the given app ID."""
 
 
