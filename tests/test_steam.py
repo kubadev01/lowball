@@ -46,6 +46,7 @@ def test_returns_none_for_free_game(monkeypatch):
             "data": [],
         }
     }
+
     store = steam.SteamStore()
     monkeypatch.setattr(steam.httpx, "get", fake_get(200, body))
 
@@ -60,6 +61,7 @@ def test_raises_for_unknown_game(monkeypatch):
             "success": False,
         }
     }
+
     store = steam.SteamStore()
     monkeypatch.setattr(steam.httpx, "get", fake_get(200, body))
 
@@ -68,8 +70,9 @@ def test_raises_for_unknown_game(monkeypatch):
 
 
 def test_raises_on_server_error(monkeypatch):
-    monkeypatch.setattr(steam.httpx, "get", fake_get(500, {}))
     store = steam.SteamStore()
+    monkeypatch.setattr(steam.httpx, "get", fake_get(500, {}))
+
     with pytest.raises(httpx.HTTPStatusError):
         store.fetch_price("123")
 
@@ -85,7 +88,9 @@ def test_unknown_game_is_product_not_found(monkeypatch):
             "success": False,
         }
     }
+
     store = steam.SteamStore()
     monkeypatch.setattr(steam.httpx, "get", fake_get(200, body))
+
     with pytest.raises(ProductNotFoundError):
         store.fetch_price("123")

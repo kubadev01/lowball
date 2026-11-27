@@ -11,6 +11,8 @@ class GameNotFoundError(ProductNotFoundError):
 
 
 class SteamStore(Store):
+    """Steam store class object with fetch_prices method using steam API."""
+
     def fetch_price(self, product_id: str) -> PriceInfo | None:
         response = httpx.get(
             APPDETAILS_URL,
