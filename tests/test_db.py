@@ -67,3 +67,18 @@ def test_raises_for_unknown_game_price(tmp_path):
             PriceInfo(final=140, initial=140, discount_percent=0, currency="USD"),
             datetime(2026, 11, 25, tzinfo=UTC),
         )
+
+
+def test_set_target_price(tmp_path):
+    conn = db.connect(tmp_path / "test.db")
+    db.add_game(conn, "001", "example1")
+    db.set_target_price(conn, "001", 9999)
+    target_price = db.target_price(conn, "001")
+    assert target_price == 9999
+
+
+def test_game_without_target_price_target_price_is_none(tmp_path):
+    conn = db.connect(tmp_path / "test.db")
+    db.add_game(conn, "001", "example1")
+    target_price = db.target_price(conn, "001")
+    assert target_price is None

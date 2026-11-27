@@ -7,7 +7,8 @@ from tracker.models import PriceInfo
 SCHEMA = """
     CREATE TABLE IF NOT EXISTS games (
         app_id  TEXT PRIMARY KEY,
-        name    TEXT NOT NULL
+        name    TEXT NOT NULL,
+        target_price INTEGER
     );
 
     CREATE TABLE IF NOT EXISTS prices (
@@ -67,3 +68,25 @@ def lowest_price(conn: sqlite3.Connection, app_id: str) -> int | None:
     cursor = conn.execute("SELECT MIN(final) FROM prices WHERE app_id = ?", (app_id,))
     (price,) = cursor.fetchone()
     return price
+
+
+def set_target_price(conn: sqlite3.Connection, app_id: str, price: int | None) -> None:
+    with conn:
+        conn.execute(
+            """
+                UPDATE games
+                SET target_price = ?
+                WHERE app_id = ?
+            """,
+            (price, app_id),
+        )
+
+
+def target_price(conn: sqlite3.Connection, app_id: str) -> int | None:
+    cursor = conn.execute(
+        """SELECT target_price FROM games WHERE app_id = ?""", (app_id,)
+    )
+    row = cursor.fetchone()
+    if row is None:
+        return None
+    return row[0]
