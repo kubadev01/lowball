@@ -1,15 +1,11 @@
 import sqlite3
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 
 import httpx
 
 from tracker import db
-from tracker.models import PriceInfo
-from tracker.stores.base import ProductNotFoundError
-
-FetchPrice = Callable[[str], PriceInfo | None]
+from tracker.stores.base import ProductNotFoundError, Store
 
 
 @dataclass(frozen=True)
@@ -19,7 +15,7 @@ class CheckResult:
 
 
 def check_prices(
-    conn: sqlite3.Connection, fetch: FetchPrice, checked_at: datetime
+    conn: sqlite3.Connection, store: Store, checked_at: datetime
 ) -> CheckResult:
     """Fetch the current price of every tracked game and store it.
 
@@ -29,7 +25,7 @@ def check_prices(
     failed = []
     for app_id, _ in db.list_games(conn):
         try:
-            info = fetch(app_id)
+            info = store.fetch_price(product_id=app_id)
         except (ProductNotFoundError, httpx.HTTPError):
             failed.append(app_id)
             continue
